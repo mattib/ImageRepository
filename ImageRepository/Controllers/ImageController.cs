@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -19,16 +20,17 @@ namespace ImageRepository.Controllers
         // GET api/values
         public HttpResponseMessage Get(string fileId)
         {
-             
-            //return new string[] { "value1", "value2" };
-
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
 
-            //var directory exists =Directory.Exists(@
+            var repositoryFolder = ConfigurationManager.AppSettings.Get("RepositoryFolder");
+            if (string.IsNullOrEmpty(repositoryFolder))
+            {
 
-            var currentDirectory = HttpContext.Current.Server.MapPath("");
-            var fullDirectory = Path.Combine(currentDirectory, "Repository");
-            if (Directory.Exists(fullDirectory))
+                repositoryFolder = HttpRuntime.AppDomainAppPath;
+            }
+
+            var fullDirectory = Path.Combine(repositoryFolder, "Repository");
+            if (!Directory.Exists(fullDirectory))
             {
                 Directory.CreateDirectory(fullDirectory);
             }
@@ -41,11 +43,7 @@ namespace ImageRepository.Controllers
                 new MediaTypeHeaderValue("image/*");
 
             httpResponseMessage.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("inline");
-            //httpResponseMessage.Content.Headers.ContentDisposition =
-            //    new ContentDispositionHeaderValue("attachment")
-            //    {
-            //        FileName = "ben-avraham.jpg"
-            //    };
+ 
             return httpResponseMessage;
         }
 
